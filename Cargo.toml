@@ -1,0 +1,14 @@
+[package]
+name = "tether-serial-values"
+version = "0.1.0"
+edition = "2021"
+description = "Read numbers line by line over serial port, emit values as Tether Messages"
+license = "MIT"
+
+
+[dependencies]
+serialport = "4.7.0"
+tether-agent = "0.14.2"
+clap = { version = "4.5.29", features = ["derive"] }
+env_logger = "0.7"
+log = "0.4.17"
