@@ -14,7 +14,7 @@ struct Cli {
     #[arg(long = "loglevel",default_value_t=String::from("info"))]
     pub log_level: String,
 
-    #[arg(long="port", default_value_t=String::from("/dev/cu.usbmodem1201"))]
+    #[arg(default_value_t=String::from("/dev/cu.usbmodem1201"))]
     port: String,
 
     #[arg(long = "baudRate", default_value_t = 9600)]

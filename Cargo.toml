@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 description = "Read numbers line by line over serial port, emit values as Tether Messages"
 license = "MIT"
-
+homepage = "https://github.com/RandomStudio/tether-serial-values"
+repository = "https://github.com/RandomStudio/tether-serial-values"
 
 [dependencies]
 serialport = "4.7.0"
