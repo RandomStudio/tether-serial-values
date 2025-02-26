@@ -1,6 +1,6 @@
 [package]
 name = "tether-serial-values"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Read numbers line by line over serial port, emit values as Tether Messages"
 license = "MIT"

@@ -42,7 +42,7 @@ fn main() {
         .unwrap();
 
     let port = serialport::new(&cli.port, cli.baud_rate)
-        .timeout(Duration::from_millis(10))
+        .timeout(Duration::from_millis(100))
         .open();
 
     match port {
@@ -72,7 +72,7 @@ fn main() {
         }
         Err(e) => {
             eprintln!("Failed to open \"{}\". Error: {}", &cli.port, e);
-            ::std::process::exit(1);
+            panic!("Failed to open port");
         }
     }
 }
