@@ -15,7 +15,7 @@ struct Cli {
     #[arg(long = "loglevel",default_value_t=String::from("info"))]
     pub log_level: String,
 
-    #[arg(default_value_t=String::from("/dev/cu.usbmodem1201"))]
+    #[arg(default_value_t=String::from("/dev/tty.usbmodem1301"))]
     port: String,
 
     #[arg(long = "baudRate", default_value_t = 9600)]
@@ -25,9 +25,9 @@ struct Cli {
     #[arg(long = "tether.role", default_value_t = String::from("serial"))]
     tether_role: String,
 
-    /// ID to use in Tether topics
-    #[arg(long = "tether.id", default_value_t = String::from("any"))]
-    tether_id: String,
+    /// ID to use in Tether topics. If omitted, will use port as ID.
+    #[arg(long = "tether.id")]
+    tether_id: Option<String>,
 
     /// Plug Name to use in Tether topics
     #[arg(long = "tether.plugName", default_value_t = String::from("values"))]
@@ -42,14 +42,21 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
+    let tether_id = match &cli.tether_id {
+        Some(custom) => String::from(custom),
+        None => String::from(&cli.port).trim().replace("/", "_"),
+    };
+
     env_logger::Builder::from_env(Env::default().default_filter_or(&cli.log_level))
         .filter_module("tether_agent", log::LevelFilter::Warn)
         .filter_module("symphonia_core", log::LevelFilter::Warn)
         .filter_module("symphonia_bundle_mp3", log::LevelFilter::Warn)
         .init();
 
+    info!("Will use Tether ID {}", &tether_id);
+
     let mut tether_agent = TetherAgentOptionsBuilder::new(&cli.tether_role)
-        .id(Some(&cli.tether_id))
+        .id(Some(&tether_id))
         .build()
         .expect("failed to init Tether Agent");
 
@@ -84,12 +91,19 @@ fn main() {
                 if reader.read_line(&mut value).is_ok() {
                     last_value_parsed = SystemTime::now();
                     let s = value.trim();
-                    debug!("String: {}", s);
-                    if let Ok(int_value) = s.parse::<u32>() {
-                        debug!("uint32: {}", int_value);
+                    debug!("Original String: {}", s);
+                    if let Ok(int_value) = s.parse::<u64>() {
+                        debug!("uint64: {}", int_value);
                         tether_agent
                             .encode_and_publish(&output_plug, int_value)
                             .expect("failed to publish");
+                    } else if let Ok(float_value) = s.parse::<f32>() {
+                        debug!("float32: {}", float_value);
+                        tether_agent
+                            .encode_and_publish(&output_plug, float_value)
+                            .expect("failed to publish");
+                    } else {
+                        debug!("Ignore non-number value");
                     }
                     // if let Ok(float_value) = s.parse::<f32>() {
                     //     debug!("f32: {}", float_value);
